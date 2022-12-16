@@ -1,6 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:instagram_flutter/resources/auth_methods.dart';
 import 'package:instagram_flutter/utils/colors.dart';
+import 'package:instagram_flutter/utils/utils.dart';
 
 import '../widgets/text_field_input.dart';
 
@@ -17,6 +22,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _passwordController=TextEditingController();
   final TextEditingController _bioController=TextEditingController();
   final TextEditingController _usernameController=TextEditingController();
+  Uint8List? _image;
+  bool _isLoading=false;
   @override
   void dispose() {
     super.dispose();
@@ -24,6 +31,33 @@ class _SignupScreenState extends State<SignupScreen> {
     _passwordController.dispose();
     _bioController.dispose();
     _usernameController.dispose();
+  }
+  void selectImage() async{
+    Uint8List im=await pickImage(ImageSource.gallery);
+    setState(() {
+      _image=im;
+    });
+  }
+
+  void signUpUser() async{
+    setState(() {
+      _isLoading=true;
+    });
+      String res= await AuthMethods().signUpUser(
+        email: _emailController.text,
+        password: _passwordController.text,
+        username: _usernameController.text,
+        bio: _bioController.text,
+        file:_image!,
+        );
+        setState(() {
+          _isLoading=false;
+        });
+       if(res!= 'success'){
+      showSnackBar(res, context);
+       }else{
+        //
+       }
   }
   @override
   Widget build(BuildContext context) {
@@ -38,7 +72,12 @@ class _SignupScreenState extends State<SignupScreen> {
             SvgPicture.asset('assets/ic_instagram.svg',color: primaryColor,height: 64,),
             const SizedBox(height: 64,),
             Stack(children: [
-             const CircleAvatar(
+             _image!=null ?
+             CircleAvatar(
+                radius: 64,
+                backgroundImage: MemoryImage(_image!),
+              )
+             : const CircleAvatar(
                 radius: 64,
                 backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png"),
               ),
@@ -46,7 +85,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 bottom: -10,
                 left:80,
                 child: IconButton(
-                  onPressed: (){},
+                  onPressed: selectImage,
                    icon: const Icon(Icons.add_a_photo),
                    ))
             ],),
@@ -65,13 +104,7 @@ class _SignupScreenState extends State<SignupScreen> {
               textEditingController: _emailController,
             ),
             const SizedBox(height: 24,),
-             TextFieldInput(
-              hintText: "Enter your bio",
-              textInputType: TextInputType.text,
-              isPass: false,
-              textEditingController: _bioController,
-            ),
-            const SizedBox(height: 24,),
+           
             TextFieldInput(
               hintText: "Enter your password",
               textInputType: TextInputType.text,
@@ -79,9 +112,21 @@ class _SignupScreenState extends State<SignupScreen> {
               textEditingController: _passwordController,
             ),
             const SizedBox(height: 24,),
+              TextFieldInput(
+              hintText: "Enter your bio",
+              textInputType: TextInputType.text,
+              isPass: false,
+              textEditingController: _bioController,
+            ),
+            const SizedBox(height: 24,),
             InkWell(
+              onTap: () {
+             signUpUser();
+              },
               child: Container(
-                child: Text('Signup'),
+                child: _isLoading ? 
+                const Center(child: CircularProgressIndicator(color: primaryColor,),)  
+                : Text('Signup'),
                 alignment: Alignment.center,
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: 12),
