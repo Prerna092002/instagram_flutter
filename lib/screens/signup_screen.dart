@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram_flutter/resources/auth_methods.dart';
+import 'package:instagram_flutter/screens/login_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
 import 'package:instagram_flutter/utils/utils.dart';
 
@@ -58,6 +59,12 @@ class _SignupScreenState extends State<SignupScreen> {
        }else{
         //
        }
+  }
+   void navigateToLogin(){
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context)=>const LoginScreen()
+        ));
   }
   @override
   Widget build(BuildContext context) {
@@ -148,7 +155,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     padding: EdgeInsets.symmetric(vertical: 8),
                   ),
                   GestureDetector(
-                    onTap:(){},
+                    onTap:(){
+                      navigateToLogin();
+                    },
                     child: Container(
                       child: const Text(
                         "Login",
