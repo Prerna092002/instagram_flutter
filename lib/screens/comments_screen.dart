@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/resources/firestore_methods.dart';
 import 'package:instagram_flutter/utils/colors.dart';
@@ -30,7 +31,20 @@ class _CommentsScreenState extends State<CommentsScreen> {
         title: Text('Comments'),
         centerTitle: false,
        ),
-       body: CommentCard(),
+       body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('posts').doc(widget.snap['postId']).collection('comments').snapshots(),
+        builder: (context,AsyncSnapshot<QuerySnapshot<Map<String,dynamic> > > snapshot) {
+         if(snapshot.connectionState==ConnectionState.waiting){
+          return const Center(
+               child:CircularProgressIndicator(),
+          );
+         }
+         return ListView.builder(
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (context, index) =>CommentCard(
+            snap:snapshot.data!.docs[index].data(),
+          ) );
+       },),
        bottomNavigationBar: SafeArea(
         child:Container(height: kToolbarHeight,
         margin: EdgeInsets.only(
@@ -62,7 +76,11 @@ class _CommentsScreenState extends State<CommentsScreen> {
                    user.uid,
                    user.username,
                    user.photoUrl
-                );},
+                );
+                setState(() {
+                _commentController.text="";
+                });
+                },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
                   child: const Text("Post",

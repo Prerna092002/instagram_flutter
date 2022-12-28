@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
                   color: primaryColor,
                   ),);
              }
-             return LoginScreen();
+             return const LoginScreen();
         },)
       ),
     );
