@@ -32,7 +32,7 @@ class FollowButton extends StatelessWidget {
           color: textColor,
           fontWeight: FontWeight.bold,
         )),
-        width: 250,
+        width: 200,
         height: 27,
        ),),
     );
